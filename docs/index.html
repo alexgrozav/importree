@@ -907,6 +907,169 @@
       50% { transform: translateY(-10px); }
     }
 
+    /* ─── Benchmarks ─── */
+    .bench-section {
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bench-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      margin-top: 4rem;
+    }
+
+    .bench-scenarios {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .bench-scenario-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .bench-scenario-label .file-count {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      background: var(--surface);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .bench-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .bench-bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 64px;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .bench-bar-label {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .bench-bar-track {
+      height: 28px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bench-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .bench-bar-fill.importree {
+      background: linear-gradient(90deg, var(--accent), #a8e01a);
+      box-shadow: 0 0 20px rgba(196, 248, 42, 0.15);
+    }
+
+    .bench-bar-fill.dep-tree { background: var(--purple); opacity: 0.7; }
+    .bench-bar-fill.madge { background: var(--cyan); opacity: 0.7; }
+    .bench-bar-fill.manual { background: var(--orange); opacity: 0.7; }
+    .bench-bar-fill.tsc { background: var(--pink); opacity: 0.7; }
+
+    .bench-section .visible .bench-bar-fill { width: var(--bar-width); }
+
+    .bench-bar-value {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .bench-bar-row.is-winner .bench-bar-label { color: var(--accent); font-weight: 500; }
+    .bench-bar-row.is-winner .bench-bar-value { color: var(--accent); font-weight: 500; }
+
+    .bench-highlights {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .bench-highlight-card {
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .bench-highlight-card:hover { border-color: rgba(196, 248, 42, 0.15); }
+
+    .bench-highlight-value {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 2rem;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+
+    .bench-highlight-value.green {
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .bench-highlight-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .bench-highlight-detail {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .bench-footer-note {
+      margin-top: 3rem;
+      text-align: center;
+      font-family: var(--font-code);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .bench-footer-note code {
+      color: var(--accent);
+      background: rgba(196, 248, 42, 0.06);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
     /* ─── Responsive ─── */
     @media (max-width: 900px) {
       .hero-content { grid-template-columns: 1fr; text-align: center; }
@@ -916,6 +1079,8 @@
       .features-grid { grid-template-columns: 1fr; }
       .examples-grid { grid-template-columns: 1fr; }
       .output-grid { grid-template-columns: 1fr; }
+      .bench-highlights { grid-template-columns: repeat(2, 1fr); }
+      .bench-highlight-value { font-size: 1.75rem; }
       .stats-bar { flex-wrap: wrap; gap: 2rem; }
       .nav-links { gap: 1.5rem; }
       .hero-badge { margin-left: auto; margin-right: auto; }
@@ -927,6 +1092,11 @@
       .nav-links .hide-mobile { display: none; }
       .footer-content { flex-direction: column; gap: 1.5rem; text-align: center; }
       .footer-left { flex-direction: column; gap: 0.5rem; }
+      .bench-bar-row { grid-template-columns: 90px 1fr 52px; gap: 0.5rem; }
+      .bench-bar-label { font-size: 0.65rem; }
+      .bench-bar-value { font-size: 0.65rem; }
+      .bench-highlights { grid-template-columns: 1fr; }
+      .bench-highlight-value { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -942,6 +1112,7 @@
     <a href="#" class="nav-logo">importree</a>
     <ul class="nav-links">
       <li><a href="#features" class="hide-mobile">Features</a></li>
+      <li><a href="#benchmarks" class="hide-mobile">Benchmarks</a></li>
       <li><a href="#examples" class="hide-mobile">Examples</a></li>
       <li><a href="#api" class="hide-mobile">API</a></li>
       <li><a href="https://github.com/alexgrozav/importree" class="btn-sm" target="_blank">GitHub</a></li>
@@ -1109,6 +1280,83 @@
         <h3>Cache Invalidation</h3>
         <p>Someone edits <code>utils.ts</code> &mdash; which test suites, which pages, which build targets need to re-run? The pre-computed reverse graph answers that instantly with <code>getAffectedFiles()</code>.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benchmarks -->
+<section id="benchmarks" class="bench-section">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Performance</span>
+      <h2 class="section-title">Benchmarks</h2>
+      <p class="section-subtitle">
+        Compared with excellent tools like <a href="https://github.com/pahen/madge" style="color: var(--cyan); text-decoration: none;">madge</a>, <a href="https://github.com/dependents/node-dependency-tree" style="color: var(--purple); text-decoration: none;">dependency-tree</a>, and the TypeScript compiler on a synthetic project with realistic import patterns.
+      </p>
+    </div>
+
+    <div class="bench-layout">
+      <!-- Bar chart -->
+      <div class="bench-scenarios reveal">
+        <div>
+          <div class="bench-scenario-label">500 files <span class="file-count">synthetic project</span></div>
+          <div class="bench-bars">
+            <div class="bench-bar-row is-winner">
+              <span class="bench-bar-label">importree</span>
+              <div class="bench-bar-track"><div class="bench-bar-fill importree" style="--bar-width: 15.2%"></div></div>
+              <span class="bench-bar-value">12.7 ms</span>
+            </div>
+            <div class="bench-bar-row">
+              <span class="bench-bar-label">glob+regex</span>
+              <div class="bench-bar-track"><div class="bench-bar-fill manual" style="--bar-width: 31.7%"></div></div>
+              <span class="bench-bar-value">26.5 ms</span>
+            </div>
+            <div class="bench-bar-row">
+              <span class="bench-bar-label">madge</span>
+              <div class="bench-bar-track"><div class="bench-bar-fill madge" style="--bar-width: 51.8%"></div></div>
+              <span class="bench-bar-value">43.3 ms</span>
+            </div>
+            <div class="bench-bar-row">
+              <span class="bench-bar-label">dep-tree</span>
+              <div class="bench-bar-track"><div class="bench-bar-fill dep-tree" style="--bar-width: 53.1%"></div></div>
+              <span class="bench-bar-value">44.4 ms</span>
+            </div>
+            <div class="bench-bar-row">
+              <span class="bench-bar-label">ts compiler</span>
+              <div class="bench-bar-track"><div class="bench-bar-fill tsc" style="--bar-width: 60.9%"></div></div>
+              <span class="bench-bar-value">50.9 ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Highlight cards -->
+      <div class="bench-highlights reveal" style="transition-delay: 0.15s;">
+        <div class="bench-highlight-card">
+          <div class="bench-highlight-value green">12.7 ms</div>
+          <div class="bench-highlight-label">full dependency tree for <strong>500 files</strong></div>
+          <div class="bench-highlight-detail">Concurrent async traversal + resolver cache</div>
+        </div>
+        <div class="bench-highlight-card">
+          <div class="bench-highlight-value green">661K ops/s</div>
+          <div class="bench-highlight-label"><strong>scanImports</strong> throughput on typical source files</div>
+          <div class="bench-highlight-detail">Regex-based extraction &middot; zero allocation hot path</div>
+        </div>
+        <div class="bench-highlight-card">
+          <div class="bench-highlight-value green">26.4 ms</div>
+          <div class="bench-highlight-label">full tree build for <strong>1,000 files</strong></div>
+          <div class="bench-highlight-detail">~38 ops/s &middot; scales linearly with project size</div>
+        </div>
+        <div class="bench-highlight-card">
+          <div class="bench-highlight-value green">0 deps</div>
+          <div class="bench-highlight-label">built entirely on <strong>Node.js built-ins</strong></div>
+          <div class="bench-highlight-detail">No native binaries &middot; no WASM &middot; no AST parsers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bench-footer-note reveal">
+      Measured with Vitest bench on Node.js v22. Run <code>pnpm bench:run</code> to reproduce locally.
     </div>
   </div>
 </section>

@@ -21,6 +21,39 @@ Built for CI pipelines, build tools, monorepo task runners, and test selectors.
 - **Cache invalidation** — Pre-computed reverse dependency graph answers "what needs rebuilding?" instantly.
 - **Dual output** — Ships both ESM and CJS with full TypeScript declarations.
 
+## Benchmarks
+
+Measured with [Vitest bench](https://vitest.dev/guide/features.html#benchmarking) on Node.js v22. Results vary by hardware.
+
+### Comparison with alternatives
+
+Each tool brings different strengths — [dependency-tree](https://github.com/dependents/node-dependency-tree) offers robust AST-based analysis via detective, [madge](https://github.com/pahen/madge) supports multiple languages and provides circular dependency detection with visualization. importree trades those features for raw speed through regex-based extraction.
+
+| Scenario | importree | [dependency-tree](https://github.com/dependents/node-dependency-tree) | [madge](https://github.com/pahen/madge) | Manual glob+regex | ts.createProgram |
+|----------|-----------|-----------------|-------|-------------------|------------------|
+| Small (10 files) | **0.4 ms** | 3.1 ms | 3.7 ms | 0.6 ms | 49.9 ms |
+| Medium (100 files) | **2.1 ms** | 14.3 ms | 15.1 ms | 5.2 ms | 48.4 ms |
+| Large (500 files) | **12.7 ms** | 44.4 ms | 43.3 ms | 26.5 ms | 50.9 ms |
+
+### Full tree build
+
+| Project size | Mean time | Throughput |
+|-------------|-----------|------------|
+| 10 files | 0.4 ms | ~2,548 ops/s |
+| 100 files | 2.5 ms | ~406 ops/s |
+| 500 files | 12.1 ms | ~83 ops/s |
+| 1,000 files | 26.4 ms | ~38 ops/s |
+
+### Scanner throughput
+
+| Operation | Throughput |
+|-----------|-----------|
+| `scanImports` (3 imports) | ~661K ops/s |
+| `scanImports` (50 imports) | ~41K ops/s |
+| `stripComments` (1,000 lines) | ~2,497 ops/s |
+
+> Run `pnpm bench:run` to reproduce locally.
+
 ## Install
 
 ```sh

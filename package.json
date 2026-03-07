@@ -50,11 +50,15 @@
     "build:watch": "tsdown --watch",
     "dev": "tsdown --watch",
     "dev:docs": "npx http-server docs -p 8765 -o",
+    "bench": "vitest bench",
+    "bench:run": "vitest bench --run",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18",
+    "dependency-tree": "^11.4.0",
+    "madge": "^8.0.0",
     "tsdown": "^0.21.0",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
