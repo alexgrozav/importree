@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/alexgrozav/importree.git"
   },
-  "homepage": "https://github.com/alexgrozav/importree#readme",
+  "homepage": "https://importree.js.org",
   "bugs": {
     "url": "https://github.com/alexgrozav/importree/issues"
   },

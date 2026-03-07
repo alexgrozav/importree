@@ -11,7 +11,7 @@ When a file changes, you need to know what else is affected. importree builds th
 
 Built for CI pipelines, build tools, monorepo task runners, and test selectors.
 
-[Website](https://alexgrozav.github.io/importree/) · [GitHub](https://github.com/alexgrozav/importree) · [npm](https://www.npmjs.com/package/importree)
+[Website](https://importree.js.org) · [GitHub](https://github.com/alexgrozav/importree) · [npm](https://www.npmjs.com/package/importree)
 
 ## Highlights
 
