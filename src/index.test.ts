@@ -43,8 +43,9 @@ describe('getAffectedFiles', () => {
     const tree = await importree(f('circular', 'a.ts'));
     const affected = getAffectedFiles(tree, f('circular', 'a.ts'));
 
-    // a changed → b depends on a
+    // a changed → b depends on a, but a itself should NOT be included
     expect(affected).toContain(f('circular', 'b.ts'));
+    expect(affected).not.toContain(f('circular', 'a.ts'));
   });
 
   it('does not include the changed file itself', async () => {

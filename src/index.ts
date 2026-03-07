@@ -59,5 +59,6 @@ export function getAffectedFiles(
     }
   }
 
+  affected.delete(absolute);
   return [...affected].sort();
 }
