@@ -1,2 +1,14 @@
 node_modules/
 dist/
+dist-docs/
+coverage/
+
+*.log
+*.tsbuildinfo
+*.tgz
+
+.DS_Store
+Thumbs.db
+
+.env
+.env.*
