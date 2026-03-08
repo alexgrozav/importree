@@ -1,1 +1,1 @@
-export const everything = 'reexported';
+export const everything = "reexported";

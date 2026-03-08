@@ -1,3 +1,3 @@
-import { b } from './b';
+import { b } from "./b";
 
-export const a = 'a' + b;
+export const a = "a" + b;

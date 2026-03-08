@@ -1,8 +1,8 @@
-import { resolve } from 'node:path';
-import type { ImportreeOptions, ImportTree } from './types.js';
-import { walk } from './walker.js';
+import { resolve } from "node:path";
+import type { ImportreeOptions, ImportTree } from "./types.js";
+import { walk } from "./walker.js";
 
-export type { ImportreeOptions, ImportTree } from './types.js';
+export type { ImportreeOptions, ImportTree } from "./types.js";
 
 /**
  * Builds a full import dependency tree starting from an entry file.
@@ -21,10 +21,7 @@ export type { ImportreeOptions, ImportTree } from './types.js';
  * console.log(tree.graph);      // file → direct dependencies
  * ```
  */
-export async function importree(
-  entry: string,
-  options?: ImportreeOptions,
-): Promise<ImportTree> {
+export async function importree(entry: string, options?: ImportreeOptions): Promise<ImportTree> {
   return walk(entry, options ?? {});
 }
 
@@ -35,10 +32,7 @@ export async function importree(
  *
  * The changed file itself is NOT included in the result.
  */
-export function getAffectedFiles(
-  tree: ImportTree,
-  changedFile: string,
-): string[] {
+export function getAffectedFiles(tree: ImportTree, changedFile: string): string[] {
   const absolute = resolve(changedFile);
 
   if (!tree.reverseGraph[absolute]) return [];

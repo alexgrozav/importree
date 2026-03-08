@@ -1,3 +1,3 @@
-import type { Foo } from './types';
+import type { Foo } from "./types";
 
-export const value: Foo = 'hello';
+export const value: Foo = "hello";

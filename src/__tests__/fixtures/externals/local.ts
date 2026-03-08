@@ -1,3 +1,3 @@
-import { join } from 'node:path';
+import { join } from "node:path";
 
-export const local = 'local';
+export const local = "local";

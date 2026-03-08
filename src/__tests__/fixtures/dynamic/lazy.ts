@@ -1,1 +1,1 @@
-export const lazy = 'lazy-loaded';
+export const lazy = "lazy-loaded";

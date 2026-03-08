@@ -1,1 +1,1 @@
-export const real = 'real';
+export const real = "real";
