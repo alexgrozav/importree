@@ -8,7 +8,7 @@
  */
 export function stripComments(code: string): string {
   const len = code.length;
-  const result: string[] = new Array(len);
+  const result: string[] = Array.from<string>({ length: len });
   let i = 0;
 
   while (i < len) {
