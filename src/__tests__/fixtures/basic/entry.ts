@@ -1,3 +1,3 @@
-import { foo } from './dep';
+import { foo } from "./dep";
 
 export const bar = foo + 1;

@@ -1,1 +1,1 @@
-export const dynamicDep = 'dynamic';
+export const dynamicDep = "dynamic";

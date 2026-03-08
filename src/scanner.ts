@@ -13,29 +13,29 @@ export function stripComments(code: string): string {
 
   while (i < len) {
     const ch = code[i];
-    const next = i + 1 < len ? code[i + 1] : '';
+    const next = i + 1 < len ? code[i + 1] : "";
 
     // Line comment → blank to end of line
-    if (ch === '/' && next === '/') {
-      result[i++] = ' ';
-      result[i++] = ' ';
-      while (i < len && code[i] !== '\n') {
-        result[i++] = ' ';
+    if (ch === "/" && next === "/") {
+      result[i++] = " ";
+      result[i++] = " ";
+      while (i < len && code[i] !== "\n") {
+        result[i++] = " ";
       }
       continue;
     }
 
     // Block comment → blank to closing */
-    if (ch === '/' && next === '*') {
-      result[i++] = ' ';
-      result[i++] = ' ';
-      while (i < len && !(code[i] === '*' && i + 1 < len && code[i + 1] === '/')) {
-        result[i] = code[i] === '\n' ? '\n' : ' ';
+    if (ch === "/" && next === "*") {
+      result[i++] = " ";
+      result[i++] = " ";
+      while (i < len && !(code[i] === "*" && i + 1 < len && code[i + 1] === "/")) {
+        result[i] = code[i] === "\n" ? "\n" : " ";
         i++;
       }
       if (i < len) {
-        result[i++] = ' '; // *
-        result[i++] = ' '; // /
+        result[i++] = " "; // *
+        result[i++] = " "; // /
       }
       continue;
     }
@@ -47,7 +47,7 @@ export function stripComments(code: string): string {
       result[i] = code[i];
       i++;
       while (i < len && code[i] !== quote) {
-        if (code[i] === '\\' && i + 1 < len) {
+        if (code[i] === "\\" && i + 1 < len) {
           result[i] = code[i];
           i++;
           result[i] = code[i];
@@ -65,27 +65,27 @@ export function stripComments(code: string): string {
     }
 
     // Template literal — copy verbatim, handling ${} nesting
-    if (ch === '`') {
+    if (ch === "`") {
       result[i] = code[i];
       i++;
       let depth = 0;
       while (i < len) {
-        if (code[i] === '\\' && i + 1 < len) {
+        if (code[i] === "\\" && i + 1 < len) {
           result[i] = code[i];
           i++;
           result[i] = code[i];
           i++;
-        } else if (code[i] === '$' && i + 1 < len && code[i + 1] === '{') {
+        } else if (code[i] === "$" && i + 1 < len && code[i + 1] === "{") {
           result[i] = code[i];
           i++;
           result[i] = code[i];
           i++;
           depth++;
-        } else if (code[i] === '}' && depth > 0) {
+        } else if (code[i] === "}" && depth > 0) {
           result[i] = code[i];
           i++;
           depth--;
-        } else if (code[i] === '`' && depth === 0) {
+        } else if (code[i] === "`" && depth === 0) {
           result[i] = code[i];
           i++;
           break;
@@ -102,7 +102,7 @@ export function stripComments(code: string): string {
     i++;
   }
 
-  return result.join('');
+  return result.join("");
 }
 
 // Static regex patterns — compiled once

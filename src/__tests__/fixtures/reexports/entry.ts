@@ -1,3 +1,3 @@
-import { everything } from './barrel';
+import { everything } from "./barrel";
 
 export const main = everything;

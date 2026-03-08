@@ -1,6 +1,6 @@
-import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 export interface Fixture {
   rootDir: string;
@@ -8,13 +8,13 @@ export interface Fixture {
   cleanup: () => void;
 }
 
-export type FixtureSize = 'small' | 'medium' | 'large' | 'xlarge';
+export type FixtureSize = "small" | "medium" | "large" | "xlarge";
 
 export const SIZES: Record<FixtureSize, { fileCount: number; label: string }> = {
-  small: { fileCount: 10, label: 'small (10 files)' },
-  medium: { fileCount: 100, label: 'medium (100 files)' },
-  large: { fileCount: 500, label: 'large (500 files)' },
-  xlarge: { fileCount: 1000, label: 'xlarge (1000 files)' },
+  small: { fileCount: 10, label: "small (10 files)" },
+  medium: { fileCount: 100, label: "medium (100 files)" },
+  large: { fileCount: 500, label: "large (500 files)" },
+  xlarge: { fileCount: 1000, label: "xlarge (1000 files)" },
 };
 
 /**
@@ -25,15 +25,15 @@ function generateFileContent(index: number, imports: string[], useAlias: boolean
 
   // JSDoc header
   lines.push(`/**`);
-  lines.push(` * Module file-${String(index).padStart(4, '0')}`);
+  lines.push(` * Module file-${String(index).padStart(4, "0")}`);
   lines.push(` * Auto-generated benchmark fixture`);
   lines.push(` */`);
-  lines.push('');
+  lines.push("");
 
   // Import statements — mix static, type, and dynamic styles
   for (let i = 0; i < imports.length; i++) {
     const dep = imports[i];
-    const prefix = useAlias && Math.random() < 0.1 ? '@/' : './';
+    const prefix = useAlias && Math.random() < 0.1 ? "@/" : "./";
     const specifier = `${prefix}${dep}`;
 
     if (i % 5 === 0 && i > 0) {
@@ -51,7 +51,7 @@ function generateFileContent(index: number, imports: string[], useAlias: boolean
     }
   }
 
-  lines.push('');
+  lines.push("");
 
   // Interface
   lines.push(`interface Config${index} {`);
@@ -59,7 +59,7 @@ function generateFileContent(index: number, imports: string[], useAlias: boolean
   lines.push(`  enabled: boolean;`);
   lines.push(`  count: number;`);
   lines.push(`}`);
-  lines.push('');
+  lines.push("");
 
   // Exported function
   lines.push(`/** Process data for module ${index} */`);
@@ -67,19 +67,19 @@ function generateFileContent(index: number, imports: string[], useAlias: boolean
   lines.push(`  const result = input.toUpperCase();`);
   lines.push(`  return result + '-${index}';`);
   lines.push(`}`);
-  lines.push('');
+  lines.push("");
 
   // Exported constant and type
   lines.push(`export const value${index} = ${index};`);
   lines.push(`export type Type${index} = Config${index} & { id: number };`);
-  lines.push('');
+  lines.push("");
 
   // Filler lines to bring file to realistic size
   for (let f = 0; f < 10 + (index % 20); f++) {
     lines.push(`const _internal${f} = '${index}-${f}';`);
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -93,8 +93,8 @@ function generateFileContent(index: number, imports: string[], useAlias: boolean
  */
 export function createFixture(size: FixtureSize): Fixture {
   const { fileCount } = SIZES[size];
-  const rootDir = mkdtempSync(join(tmpdir(), 'importree-bench-'));
-  const modulesDir = join(rootDir, 'modules');
+  const rootDir = mkdtempSync(join(tmpdir(), "importree-bench-"));
+  const modulesDir = join(rootDir, "modules");
   mkdirSync(modulesDir, { recursive: true });
 
   const chainCount = Math.floor(fileCount * 0.3);
@@ -102,13 +102,13 @@ export function createFixture(size: FixtureSize): Fixture {
   const wideCount = Math.floor(fileCount * 0.2);
   const standaloneCount = fileCount - chainCount - diamondCount - wideCount;
 
-  const pad = (n: number) => String(n).padStart(4, '0');
+  const pad = (n: number) => String(n).padStart(4, "0");
   let fileIndex = 0;
 
   // Chain: file-0 → file-1 → ... → file-(chainCount-1)
   for (let i = 0; i < chainCount; i++) {
     const deps = i < chainCount - 1 ? [`file-${pad(fileIndex + 1)}`] : [];
-    const content = generateFileContent(fileIndex, deps, size !== 'small');
+    const content = generateFileContent(fileIndex, deps, size !== "small");
     writeFileSync(join(modulesDir, `file-${pad(fileIndex)}.ts`), content);
     fileIndex++;
   }
@@ -121,14 +121,19 @@ export function createFixture(size: FixtureSize): Fixture {
     const c = fileIndex + 2;
     const d = fileIndex + 3;
 
-    writeFileSync(join(modulesDir, `file-${pad(a)}.ts`),
-      generateFileContent(a, [`file-${pad(b)}`, `file-${pad(c)}`], false));
-    writeFileSync(join(modulesDir, `file-${pad(b)}.ts`),
-      generateFileContent(b, [`file-${pad(d)}`], false));
-    writeFileSync(join(modulesDir, `file-${pad(c)}.ts`),
-      generateFileContent(c, [`file-${pad(d)}`], false));
-    writeFileSync(join(modulesDir, `file-${pad(d)}.ts`),
-      generateFileContent(d, [], false));
+    writeFileSync(
+      join(modulesDir, `file-${pad(a)}.ts`),
+      generateFileContent(a, [`file-${pad(b)}`, `file-${pad(c)}`], false),
+    );
+    writeFileSync(
+      join(modulesDir, `file-${pad(b)}.ts`),
+      generateFileContent(b, [`file-${pad(d)}`], false),
+    );
+    writeFileSync(
+      join(modulesDir, `file-${pad(c)}.ts`),
+      generateFileContent(c, [`file-${pad(d)}`], false),
+    );
+    writeFileSync(join(modulesDir, `file-${pad(d)}.ts`), generateFileContent(d, [], false));
 
     fileIndex += 4;
   }
@@ -138,14 +143,15 @@ export function createFixture(size: FixtureSize): Fixture {
   // Wide: barrel file imports all wide siblings
   const wideStart = fileIndex;
   for (let i = 0; i < wideCount; i++) {
-    writeFileSync(join(modulesDir, `file-${pad(fileIndex)}.ts`),
-      generateFileContent(fileIndex, [], false));
+    writeFileSync(
+      join(modulesDir, `file-${pad(fileIndex)}.ts`),
+      generateFileContent(fileIndex, [], false),
+    );
     fileIndex++;
   }
   // Barrel file
   const barrelImports = Array.from({ length: wideCount }, (_, i) => `file-${pad(wideStart + i)}`);
-  writeFileSync(join(modulesDir, `barrel.ts`),
-    generateFileContent(9999, barrelImports, false));
+  writeFileSync(join(modulesDir, `barrel.ts`), generateFileContent(9999, barrelImports, false));
 
   // Standalone: random 1-3 deps from already created files
   const totalStandalone = standaloneCount + diamondRemainder;
@@ -156,15 +162,17 @@ export function createFixture(size: FixtureSize): Fixture {
       const depIdx = (i * 7 + d * 13) % fileIndex; // deterministic pseudo-random
       deps.push(`file-${pad(depIdx)}`);
     }
-    writeFileSync(join(modulesDir, `file-${pad(fileIndex)}.ts`),
-      generateFileContent(fileIndex, deps, size !== 'small'));
+    writeFileSync(
+      join(modulesDir, `file-${pad(fileIndex)}.ts`),
+      generateFileContent(fileIndex, deps, size !== "small"),
+    );
     fileIndex++;
   }
 
   // Entry file: imports chain head, barrel, first diamond root, a few standalone files
   const entryImports: string[] = [];
-  if (chainCount > 0) entryImports.push('file-0000');
-  entryImports.push('barrel');
+  if (chainCount > 0) entryImports.push("file-0000");
+  entryImports.push("barrel");
   if (diamondGroups > 0) entryImports.push(`file-${pad(chainCount)}`); // first diamond root
   // A few standalone files
   for (let i = 0; i < Math.min(3, totalStandalone); i++) {
@@ -172,19 +180,19 @@ export function createFixture(size: FixtureSize): Fixture {
   }
 
   const entryLines: string[] = [
-    '/**',
-    ' * Entry point - benchmark fixture',
-    ' */',
-    '',
+    "/**",
+    " * Entry point - benchmark fixture",
+    " */",
+    "",
     ...entryImports.map((dep, i) => `import { value${i} } from './modules/${dep}';`),
-    '',
+    "",
     `export const main = 'entry';`,
   ];
-  writeFileSync(join(rootDir, 'index.ts'), entryLines.join('\n'));
+  writeFileSync(join(rootDir, "index.ts"), entryLines.join("\n"));
 
   return {
     rootDir,
-    entryFile: join(rootDir, 'index.ts'),
+    entryFile: join(rootDir, "index.ts"),
     cleanup: () => rmSync(rootDir, { recursive: true, force: true }),
   };
 }
@@ -207,7 +215,7 @@ export function generateHeavyCommentFile(lineCount: number): string {
       lines.push(`import { thing${i} } from './module-${i}';`);
     }
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -229,7 +237,7 @@ export function generateMixedImportFile(importCount: number): string {
     }
   }
   // Add filler
-  lines.push('');
-  lines.push('export const main = true;');
-  return lines.join('\n');
+  lines.push("");
+  lines.push("export const main = true;");
+  return lines.join("\n");
 }

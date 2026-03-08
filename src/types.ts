@@ -55,7 +55,7 @@ export interface ImportTree {
  * @internal
  */
 export interface ResolvedImport {
-  type: 'local' | 'external';
+  type: "local" | "external";
   /** Absolute file path (only for local imports). */
   absolutePath?: string;
   /** Bare specifier / package name (only for external imports). */
