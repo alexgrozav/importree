@@ -58,6 +58,12 @@ Each tool brings different strengths — [dependency-tree](https://github.com/de
 
 ```sh
 npm install importree
+# or
+pnpm add importree
+# or
+yarn add importree
+# or
+bun add importree
 ```
 
 Requires Node.js >= 18.
