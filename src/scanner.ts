@@ -8,125 +8,151 @@
  */
 export function stripComments(code: string): string {
   const len = code.length;
-  const result: string[] = Array.from<string>({ length: len });
+  const parts: string[] = [];
   let i = 0;
+  let segStart = 0;
 
   while (i < len) {
     const ch = code[i];
     const next = i + 1 < len ? code[i + 1] : "";
 
-    // Line comment → blank to end of line
     if (ch === "/" && next === "/") {
-      result[i++] = " ";
-      result[i++] = " ";
-      while (i < len && code[i] !== "\n") {
-        result[i++] = " ";
-      }
+      parts.push(code.slice(segStart, i));
+      while (i < len && code[i] !== "\n") i++;
+      segStart = i;
       continue;
     }
 
-    // Block comment → blank to closing */
     if (ch === "/" && next === "*") {
-      result[i++] = " ";
-      result[i++] = " ";
+      parts.push(code.slice(segStart, i));
+      i += 2;
       while (i < len && !(code[i] === "*" && i + 1 < len && code[i + 1] === "/")) {
-        result[i] = code[i] === "\n" ? "\n" : " ";
+        if (code[i] === "\n") parts.push("\n");
         i++;
       }
-      if (i < len) {
-        result[i++] = " "; // *
-        result[i++] = " "; // /
-      }
+      if (i < len) i += 2;
+      parts.push(" ");
+      segStart = i;
       continue;
     }
 
-    // Single or double quoted string — copy verbatim (skip past to avoid
-    // misidentifying comment markers inside strings)
     if (ch === "'" || ch === '"') {
       const quote = ch;
-      result[i] = code[i];
       i++;
       while (i < len && code[i] !== quote) {
-        if (code[i] === "\\" && i + 1 < len) {
-          result[i] = code[i];
-          i++;
-          result[i] = code[i];
-          i++;
-        } else {
-          result[i] = code[i];
-          i++;
-        }
-      }
-      if (i < len) {
-        result[i] = code[i];
+        if (code[i] === "\\" && i + 1 < len) i++;
         i++;
       }
+      if (i < len) i++;
       continue;
     }
 
-    // Template literal — copy verbatim, handling ${} nesting
     if (ch === "`") {
-      result[i] = code[i];
       i++;
       let depth = 0;
       while (i < len) {
         if (code[i] === "\\" && i + 1 < len) {
-          result[i] = code[i];
-          i++;
-          result[i] = code[i];
-          i++;
+          i += 2;
         } else if (code[i] === "$" && i + 1 < len && code[i + 1] === "{") {
-          result[i] = code[i];
-          i++;
-          result[i] = code[i];
-          i++;
+          i += 2;
           depth++;
         } else if (code[i] === "}" && depth > 0) {
-          result[i] = code[i];
           i++;
           depth--;
         } else if (code[i] === "`" && depth === 0) {
-          result[i] = code[i];
           i++;
           break;
         } else {
-          result[i] = code[i];
           i++;
         }
       }
       continue;
     }
 
-    // Regular character
-    result[i] = ch;
     i++;
   }
 
-  return result.join("");
+  parts.push(code.slice(segStart));
+  return parts.join("");
+}
+
+export interface RawImport {
+  path: string;
+  specifiers?: string[];
+  isNamespace?: boolean;
+  isDynamic?: boolean;
+  isSideEffect?: boolean;
 }
 
 // Static regex patterns — compiled once
-const fromRe = /\bfrom\s+['"]([^'"]+)['"]/g;
+const nsImportRe = /\bimport\s+\*\s+as\s+\w+\s+from\s+['"]([^'"]+)['"]/g;
+const namedImportRe =
+  /\bimport\s+(?:type\s+)?(?:(\w+)\s*,\s*)?\{([^}]*)\}\s+from\s+['"]([^'"]+)['"]/g;
+const defaultImportRe = /\bimport\s+(?:type\s+)?(\w+)\s+from\s+['"]([^'"]+)['"]/g;
+const reexportStarRe = /\bexport\s+\*\s+(?:as\s+\w+\s+)?from\s+['"]([^'"]+)['"]/g;
+const reexportNamedRe = /\bexport\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['"]([^'"]+)['"]/g;
 const sideEffectRe = /\bimport\s+['"]([^'"]+)['"]/g;
 const dynamicRe = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 const requireRe = /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 
+export function parseSpecifiers(clause: string): string[] {
+  return clause
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      const withoutType = s.replace(/^type\s+/, "");
+      const parts = withoutType.split(/\s+as\s+/);
+      return parts[0].trim();
+    })
+    .filter(Boolean);
+}
+
 /**
- * Scans source code and extracts all import/require specifiers.
+ * Scans source code and extracts all imports with metadata.
  *
  * Handles: static imports, dynamic imports, require(), re-exports.
  * Ignores imports inside comments. Imports inside string literals may
  * produce false positives, but unresolvable paths are silently skipped
  * by the resolver.
  */
-export function scanImports(code: string): string[] {
+export function scanImports(code: string): RawImport[] {
   const stripped = stripComments(code);
-  const specifiers = new Set<string>();
+  const results: RawImport[] = [];
 
-  for (const m of stripped.matchAll(fromRe)) specifiers.add(m[1]);
-  for (const m of stripped.matchAll(sideEffectRe)) specifiers.add(m[1]);
-  for (const m of stripped.matchAll(dynamicRe)) specifiers.add(m[1]);
-  for (const m of stripped.matchAll(requireRe)) specifiers.add(m[1]);
+  for (const m of stripped.matchAll(nsImportRe)) {
+    results.push({ path: m[1], isNamespace: true });
+  }
 
-  return [...specifiers];
+  for (const m of stripped.matchAll(namedImportRe)) {
+    const specifiers = parseSpecifiers(m[2]);
+    if (m[1]) specifiers.unshift("default");
+    results.push({ path: m[3], specifiers });
+  }
+
+  for (const m of stripped.matchAll(defaultImportRe)) {
+    results.push({ path: m[2], specifiers: ["default"] });
+  }
+
+  for (const m of stripped.matchAll(reexportStarRe)) {
+    results.push({ path: m[1], isNamespace: true });
+  }
+
+  for (const m of stripped.matchAll(reexportNamedRe)) {
+    results.push({ path: m[2], specifiers: parseSpecifiers(m[1]) });
+  }
+
+  for (const m of stripped.matchAll(sideEffectRe)) {
+    results.push({ path: m[1], isSideEffect: true });
+  }
+
+  for (const m of stripped.matchAll(dynamicRe)) {
+    results.push({ path: m[1], isDynamic: true });
+  }
+
+  for (const m of stripped.matchAll(requireRe)) {
+    results.push({ path: m[1] });
+  }
+
+  return results;
 }

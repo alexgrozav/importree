@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import type { ImportreeOptions, ImportTree } from "./types.js";
 import { walk } from "./walker.js";
 
-export type { ImportreeOptions, ImportTree } from "./types.js";
+export type { ImportreeOptions, ImportTree, ImportEdge } from "./types.js";
 
 /**
  * Builds a full import dependency tree starting from an entry file.
@@ -45,10 +45,10 @@ export function getAffectedFiles(tree: ImportTree, changedFile: string): string[
     const dependents = tree.reverseGraph[current];
     if (!dependents) continue;
 
-    for (const parent of dependents) {
-      if (!affected.has(parent)) {
-        affected.add(parent);
-        queue.push(parent);
+    for (const edge of dependents) {
+      if (!affected.has(edge.path)) {
+        affected.add(edge.path);
+        queue.push(edge.path);
       }
     }
   }

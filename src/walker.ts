@@ -1,6 +1,6 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ImportreeOptions, ImportTree } from "./types.js";
+import type { ImportreeOptions, ImportTree, ImportEdge } from "./types.js";
 import { scanImports } from "./scanner.js";
 import { createResolver } from "./resolver.js";
 
@@ -13,45 +13,71 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
   const basedir = options.rootDir ? resolve(options.rootDir) : process.cwd();
   const resolveSpecifier = createResolver(basedir, options);
 
-  const graph: Record<string, string[]> = {};
+  const graph: Record<string, ImportEdge[]> = {};
   const externals = new Set<string>();
   const visited = new Set<string>();
 
-  async function visit(filePath: string): Promise<void> {
+  function visit(filePath: string): void {
     if (visited.has(filePath)) return;
     visited.add(filePath);
 
-    const content = await readFile(filePath, "utf-8");
-    const specifiers = scanImports(content);
+    const content = readFileSync(filePath, "utf-8");
+    const rawImports = scanImports(content);
 
-    const localDeps: string[] = [];
-    for (const spec of specifiers) {
-      const resolved = resolveSpecifier(spec, filePath);
+    const edges: ImportEdge[] = [];
+    for (const raw of rawImports) {
+      const resolved = resolveSpecifier(raw.path, filePath);
       if (!resolved) continue;
 
       if (resolved.type === "external" && resolved.specifier) {
         externals.add(resolved.specifier);
       } else if (resolved.type === "local" && resolved.absolutePath) {
-        localDeps.push(resolved.absolutePath);
+        const existing = edges.find((e) => e.path === resolved.absolutePath);
+        if (existing) {
+          if (raw.specifiers) {
+            if (existing.specifiers) {
+              for (const s of raw.specifiers) existing.specifiers.push(s);
+            } else {
+              existing.specifiers = raw.specifiers;
+            }
+          }
+          if (raw.isNamespace) existing.isNamespace = true;
+          if (raw.isDynamic) existing.isDynamic = true;
+          if (raw.isSideEffect) existing.isSideEffect = true;
+        } else {
+          edges.push({
+            path: resolved.absolutePath,
+            specifiers: raw.specifiers,
+            isNamespace: raw.isNamespace,
+            isDynamic: raw.isDynamic,
+            isSideEffect: raw.isSideEffect,
+          });
+        }
       }
     }
 
-    graph[filePath] = localDeps;
+    graph[filePath] = edges;
 
-    await Promise.all(localDeps.map((dep) => visit(dep)));
+    for (const edge of edges) visit(edge.path);
   }
 
-  await visit(entrypoint);
+  visit(entrypoint);
 
   // Build reverse graph
-  const reverseGraph: Record<string, string[]> = {};
+  const reverseGraph: Record<string, ImportEdge[]> = {};
   for (const file of Object.keys(graph)) {
     reverseGraph[file] = [];
   }
-  for (const [file, deps] of Object.entries(graph)) {
-    for (const dep of deps) {
-      if (!reverseGraph[dep]) reverseGraph[dep] = [];
-      reverseGraph[dep].push(file);
+  for (const [file, edges] of Object.entries(graph)) {
+    for (const edge of edges) {
+      if (!reverseGraph[edge.path]) reverseGraph[edge.path] = [];
+      reverseGraph[edge.path].push({
+        path: file,
+        specifiers: edge.specifiers,
+        isNamespace: edge.isNamespace,
+        isDynamic: edge.isDynamic,
+        isSideEffect: edge.isSideEffect,
+      });
     }
   }
 

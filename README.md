@@ -29,28 +29,28 @@ Measured with [Vitest bench](https://vitest.dev/guide/features.html#benchmarking
 
 Each tool brings different strengths — [dependency-tree](https://github.com/dependents/node-dependency-tree) offers robust AST-based analysis via detective, [madge](https://github.com/pahen/madge) supports multiple languages and provides circular dependency detection with visualization. importree trades those features for raw speed through regex-based extraction.
 
-| Scenario           | importree   | [dependency-tree](https://github.com/dependents/node-dependency-tree) | [madge](https://github.com/pahen/madge) | Manual glob+regex | ts.createProgram |
-| ------------------ | ----------- | --------------------------------------------------------------------- | --------------------------------------- | ----------------- | ---------------- |
-| Small (10 files)   | **0.4 ms**  | 3.1 ms                                                                | 3.7 ms                                  | 0.6 ms            | 49.9 ms          |
-| Medium (100 files) | **2.1 ms**  | 14.3 ms                                                               | 15.1 ms                                 | 5.2 ms            | 48.4 ms          |
-| Large (500 files)  | **12.7 ms** | 44.4 ms                                                               | 43.3 ms                                 | 26.5 ms           | 50.9 ms          |
+| Scenario           | importree  | [dependency-tree](https://github.com/dependents/node-dependency-tree) | [madge](https://github.com/pahen/madge) | Manual glob+regex | ts.createProgram |
+| ------------------ | ---------- | --------------------------------------------------------------------- | --------------------------------------- | ----------------- | ---------------- |
+| Small (10 files)   | **0.2 ms** | 1.3 ms                                                                | 1.4 ms                                  | 0.7 ms            | ~100 ms          |
+| Medium (100 files) | **1.1 ms** | 8.7 ms                                                                | 8.8 ms                                  | 5.6 ms            | ~100 ms          |
+| Large (500 files)  | **6.0 ms** | 21.5 ms                                                               | 25.8 ms                                 | 27.6 ms           | ~100 ms          |
 
 ### Full tree build
 
 | Project size | Mean time | Throughput   |
 | ------------ | --------- | ------------ |
-| 10 files     | 0.4 ms    | ~2,548 ops/s |
-| 100 files    | 2.5 ms    | ~406 ops/s   |
-| 500 files    | 12.1 ms   | ~83 ops/s    |
-| 1,000 files  | 26.4 ms   | ~38 ops/s    |
+| 10 files     | 0.2 ms    | ~5,121 ops/s |
+| 100 files    | 1.2 ms    | ~863 ops/s   |
+| 500 files    | 5.1 ms    | ~197 ops/s   |
+| 1,000 files  | 10.3 ms   | ~97 ops/s    |
 
 ### Scanner throughput
 
-| Operation                     | Throughput   |
-| ----------------------------- | ------------ |
-| `scanImports` (3 imports)     | ~661K ops/s  |
-| `scanImports` (50 imports)    | ~41K ops/s   |
-| `stripComments` (1,000 lines) | ~2,497 ops/s |
+| Operation                     | Throughput    |
+| ----------------------------- | ------------- |
+| `scanImports` (3 imports)     | ~706K ops/s   |
+| `scanImports` (50 imports)    | ~79K ops/s    |
+| `stripComments` (1,000 lines) | ~12,337 ops/s |
 
 > Run `pnpm bench:run` to reproduce locally.
 

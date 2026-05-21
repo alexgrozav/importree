@@ -76,11 +76,14 @@ describe("getAffectedFiles", () => {
       entrypoint: "/a.ts",
       files: ["/a.ts", "/b.ts"],
       externals: [],
-      graph: { "/a.ts": ["/b.ts"], "/b.ts": [] },
-      reverseGraph: { "/a.ts": [], "/b.ts": ["/a.ts"] },
+      graph: { "/a.ts": [{ path: "/b.ts", specifiers: ["b"] }], "/b.ts": [] },
+      reverseGraph: { "/a.ts": [], "/b.ts": [{ path: "/a.ts", specifiers: ["b"] }] },
     };
     // Manually add an entry that points to a node not in reverseGraph
-    tree.reverseGraph["/b.ts"] = ["/a.ts", "/phantom.ts"];
+    tree.reverseGraph["/b.ts"] = [
+      { path: "/a.ts", specifiers: ["b"] },
+      { path: "/phantom.ts" },
+    ];
     const affected = getAffectedFiles(tree, "/b.ts");
 
     // Should include /a.ts and /phantom.ts, but not crash when /phantom.ts has no reverseGraph entry
