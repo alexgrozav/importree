@@ -289,6 +289,26 @@ describe("importree", () => {
     expect(nsEdge.isNamespace).toBe(true);
     expect(nsEdge.specifiers).toBeUndefined();
   });
+
+  it("named + reexport-star merges to namespace only", async () => {
+    const tree = await importree(f("merge-edge-types", "entry.ts"));
+    const edges = tree.graph[f("merge-edge-types", "entry.ts")];
+
+    const reexportEdge = edges.find((e) => e.path === f("merge-edge-types", "reexport-dep.ts"))!;
+    expect(reexportEdge).toBeDefined();
+    expect(reexportEdge.isNamespace).toBe(true);
+    expect(reexportEdge.specifiers).toBeUndefined();
+  });
+
+  it("duplicate side-effect imports produce single edge", async () => {
+    const tree = await importree(f("merge-edge-types", "entry.ts"));
+    const edges = tree.graph[f("merge-edge-types", "entry.ts")];
+
+    const sideEdge = edges.find((e) => e.path === f("merge-edge-types", "side-dep.ts"))!;
+    expect(sideEdge).toBeDefined();
+    expect(sideEdge.isSideEffect).toBe(true);
+    expect(sideEdge.specifiers).toBeUndefined();
+  });
 });
 
 describe("graph format correctness", () => {

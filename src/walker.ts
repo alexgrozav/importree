@@ -39,11 +39,7 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
             existing.specifiers = undefined;
             existing.isSideEffect = undefined;
           } else if (raw.specifiers && !existing.isNamespace) {
-            if (existing.specifiers) {
-              for (const s of raw.specifiers) existing.specifiers.push(s);
-            } else {
-              existing.specifiers = raw.specifiers;
-            }
+            (existing.specifiers ??= []).push(...raw.specifiers);
             existing.isSideEffect = undefined;
           }
           if (raw.isSideEffect && !existing.specifiers && !existing.isNamespace) {
