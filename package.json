@@ -1,6 +1,6 @@
 {
   "name": "importree",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Build import dependency trees for TypeScript and JavaScript files. Fast, zero-dependency static analysis for dependency detection and cache invalidation.",
   "keywords": [
     "cache-invalidation",
