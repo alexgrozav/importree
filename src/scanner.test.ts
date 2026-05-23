@@ -292,11 +292,10 @@ describe("scanImports", () => {
     });
   });
 
-  it("handles import with comment between specifiers and from", () => {
-    const code = `import { foo } from './with-comment';`;
-    const codeWithComment = `import { foo }
+  it("handles import with newline between specifiers and from", () => {
+    const code = `import { foo }
 from './with-comment';`;
-    const results = scanImports(codeWithComment);
+    const results = scanImports(code);
     expect(results).toContainEqual({ path: "./with-comment", specifiers: ["foo"] });
   });
 

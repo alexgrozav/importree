@@ -368,11 +368,7 @@ describe("graph format correctness", () => {
     ["specifiers", f("specifiers", "entry.ts"), undefined],
     ["multiline", f("multiline", "entry.ts"), undefined],
     ["index-resolution", f("index-resolution", "entry.ts"), undefined],
-    [
-      "aliases",
-      f("aliases", "src", "entry.ts"),
-      { "@": join(fixturesDir, "aliases", "src") },
-    ],
+    ["aliases", f("aliases", "src", "entry.ts"), { "@": join(fixturesDir, "aliases", "src") }],
   ];
 
   for (const [name, entry, aliases] of fixtures) {
