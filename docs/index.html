@@ -1851,37 +1851,37 @@
                 <div class="bench-bar-row is-winner">
                   <span class="bench-bar-label">importree</span>
                   <div class="bench-bar-track">
-                    <div class="bench-bar-fill importree" style="--bar-width: 15.2%"></div>
+                    <div class="bench-bar-fill importree" style="--bar-width: 11%"></div>
                   </div>
-                  <span class="bench-bar-value">12.7 ms</span>
-                </div>
-                <div class="bench-bar-row">
-                  <span class="bench-bar-label">glob+regex</span>
-                  <div class="bench-bar-track">
-                    <div class="bench-bar-fill manual" style="--bar-width: 31.7%"></div>
-                  </div>
-                  <span class="bench-bar-value">26.5 ms</span>
-                </div>
-                <div class="bench-bar-row">
-                  <span class="bench-bar-label">madge</span>
-                  <div class="bench-bar-track">
-                    <div class="bench-bar-fill madge" style="--bar-width: 51.8%"></div>
-                  </div>
-                  <span class="bench-bar-value">43.3 ms</span>
+                  <span class="bench-bar-value">6.0 ms</span>
                 </div>
                 <div class="bench-bar-row">
                   <span class="bench-bar-label">dep-tree</span>
                   <div class="bench-bar-track">
-                    <div class="bench-bar-fill dep-tree" style="--bar-width: 53.1%"></div>
+                    <div class="bench-bar-fill dep-tree" style="--bar-width: 39%"></div>
                   </div>
-                  <span class="bench-bar-value">44.4 ms</span>
+                  <span class="bench-bar-value">21.5 ms</span>
+                </div>
+                <div class="bench-bar-row">
+                  <span class="bench-bar-label">madge</span>
+                  <div class="bench-bar-track">
+                    <div class="bench-bar-fill madge" style="--bar-width: 47%"></div>
+                  </div>
+                  <span class="bench-bar-value">25.8 ms</span>
+                </div>
+                <div class="bench-bar-row">
+                  <span class="bench-bar-label">glob+regex</span>
+                  <div class="bench-bar-track">
+                    <div class="bench-bar-fill manual" style="--bar-width: 50%"></div>
+                  </div>
+                  <span class="bench-bar-value">27.6 ms</span>
                 </div>
                 <div class="bench-bar-row">
                   <span class="bench-bar-label">ts compiler</span>
                   <div class="bench-bar-track">
-                    <div class="bench-bar-fill tsc" style="--bar-width: 60.9%"></div>
+                    <div class="bench-bar-fill tsc" style="--bar-width: 95%"></div>
                   </div>
-                  <span class="bench-bar-value">50.9 ms</span>
+                  <span class="bench-bar-value">~100 ms</span>
                 </div>
               </div>
             </div>
@@ -1890,14 +1890,14 @@
           <!-- Highlight cards -->
           <div class="bench-highlights reveal" style="transition-delay: 0.15s">
             <div class="bench-highlight-card">
-              <div class="bench-highlight-value green">12.7 ms</div>
+              <div class="bench-highlight-value green">5.1 ms</div>
               <div class="bench-highlight-label">
                 full dependency tree for <strong>500 files</strong>
               </div>
-              <div class="bench-highlight-detail">Concurrent async traversal + resolver cache</div>
+              <div class="bench-highlight-detail">Sync DFS traversal + resolver cache</div>
             </div>
             <div class="bench-highlight-card">
-              <div class="bench-highlight-value green">661K ops/s</div>
+              <div class="bench-highlight-value green">706K ops/s</div>
               <div class="bench-highlight-label">
                 <strong>scanImports</strong> throughput on typical source files
               </div>
@@ -1906,12 +1906,12 @@
               </div>
             </div>
             <div class="bench-highlight-card">
-              <div class="bench-highlight-value green">26.4 ms</div>
+              <div class="bench-highlight-value green">10.3 ms</div>
               <div class="bench-highlight-label">
                 full tree build for <strong>1,000 files</strong>
               </div>
               <div class="bench-highlight-detail">
-                ~38 ops/s &middot; scales linearly with project size
+                ~97 ops/s &middot; scales linearly with project size
               </div>
             </div>
             <div class="bench-highlight-card">
