@@ -29,13 +29,6 @@ export async function importree(entry: string, options?: ImportreeOptions): Prom
 }
 
 /**
- * Given an import tree and a changed file, returns all files that
- * transitively depend on the changed file (i.e., files that would
- * need to be re-evaluated if the changed file is modified).
- *
- * The changed file itself is NOT included in the result.
- */
-/**
  * Parses a single file and returns its direct import edges without recursive traversal.
  *
  * @example
@@ -61,6 +54,13 @@ export function parseImports(filePath: string, options?: ImportreeOptions): Impo
   return edges;
 }
 
+/**
+ * Given an import tree and a changed file, returns all files that
+ * transitively depend on the changed file (i.e., files that would
+ * need to be re-evaluated if the changed file is modified).
+ *
+ * The changed file itself is NOT included in the result.
+ */
 export function getAffectedFiles(tree: ImportTree, changedFile: string): string[] {
   const absolute = resolve(changedFile);
 
