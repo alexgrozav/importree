@@ -1,8 +1,54 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ImportreeOptions, ImportTree, ImportEdge } from "./types.js";
+import type { RawImport } from "./scanner.js";
 import { scanImports } from "./scanner.js";
+import type { Resolver } from "./resolver.js";
 import { createResolver } from "./resolver.js";
+
+export function buildEdges(
+  rawImports: RawImport[],
+  resolveSpecifier: Resolver,
+  filePath: string,
+): { edges: ImportEdge[]; externals: string[] } {
+  const edges: ImportEdge[] = [];
+  const externals: string[] = [];
+
+  for (const raw of rawImports) {
+    const resolved = resolveSpecifier(raw.path, filePath);
+    if (!resolved) continue;
+
+    if (resolved.type === "external" && resolved.specifier) {
+      externals.push(resolved.specifier);
+    } else if (resolved.type === "local" && resolved.absolutePath) {
+      const existing = edges.find((e) => e.path === resolved.absolutePath);
+      if (existing) {
+        if (raw.isNamespace) {
+          existing.isNamespace = true;
+          existing.specifiers = undefined;
+          existing.isSideEffect = undefined;
+        } else if (raw.specifiers && !existing.isNamespace) {
+          (existing.specifiers ??= []).push(...raw.specifiers);
+          existing.isSideEffect = undefined;
+        }
+        if (raw.isSideEffect && !existing.specifiers && !existing.isNamespace) {
+          existing.isSideEffect = true;
+        }
+        if (raw.isDynamic) existing.isDynamic = true;
+      } else {
+        edges.push({
+          path: resolved.absolutePath,
+          specifiers: raw.specifiers,
+          isNamespace: raw.isNamespace,
+          isDynamic: raw.isDynamic,
+          isSideEffect: raw.isSideEffect,
+        });
+      }
+    }
+  }
+
+  return { edges, externals };
+}
 
 /**
  * Walks imports starting from an entry file and builds the full dependency tree.
@@ -25,41 +71,9 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
 
     const content = readFileSync(filePath, "utf-8");
     const rawImports = scanImports(content);
+    const { edges, externals: fileExternals } = buildEdges(rawImports, resolveSpecifier, filePath);
 
-    const edges: ImportEdge[] = [];
-    for (const raw of rawImports) {
-      const resolved = resolveSpecifier(raw.path, filePath);
-      if (!resolved) continue;
-
-      if (resolved.type === "external" && resolved.specifier) {
-        externals.add(resolved.specifier);
-      } else if (resolved.type === "local" && resolved.absolutePath) {
-        const existing = edges.find((e) => e.path === resolved.absolutePath);
-        if (existing) {
-          if (raw.isNamespace) {
-            existing.isNamespace = true;
-            existing.specifiers = undefined;
-            existing.isSideEffect = undefined;
-          } else if (raw.specifiers && !existing.isNamespace) {
-            (existing.specifiers ??= []).push(...raw.specifiers);
-            existing.isSideEffect = undefined;
-          }
-          if (raw.isSideEffect && !existing.specifiers && !existing.isNamespace) {
-            existing.isSideEffect = true;
-          }
-          if (raw.isDynamic) existing.isDynamic = true;
-        } else {
-          edges.push({
-            path: resolved.absolutePath,
-            specifiers: raw.specifiers,
-            isNamespace: raw.isNamespace,
-            isDynamic: raw.isDynamic,
-            isSideEffect: raw.isSideEffect,
-          });
-        }
-      }
-    }
-
+    for (const ext of fileExternals) externals.add(ext);
     graph[filePath] = edges;
 
     for (const edge of edges) stack.push(edge.path);
