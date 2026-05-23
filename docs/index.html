@@ -856,6 +856,7 @@
         display: grid;
         gap: 2rem;
         margin-top: 4rem;
+        grid-column: 1 / -1;
       }
 
       .api-card {
@@ -886,7 +887,7 @@
         color: var(--text-muted);
         font-size: 0.95rem;
         line-height: 1.7;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0;
       }
 
       /* ─── Output Section ─── */
@@ -1432,7 +1433,7 @@
           <div>
             <div class="hero-badge">
               <span class="dot"></span>
-              v1.0 &mdash; Stable Release
+              v2.0 &mdash; Stable Release
             </div>
             <h1>
               <span class="line"
@@ -1964,7 +1965,7 @@ console.<span class="fn">log</span>(tree.<span class="prop">externals</span>);
 <span class="cmt">// ['react', 'lodash', 'node:path']</span>
 
 console.<span class="fn">log</span>(tree.<span class="prop">graph</span>);
-<span class="cmt">// { '/abs/src/index.ts': ['/abs/src/app.ts', ...] }</span></pre>
+<span class="cmt">// { '/abs/src/index.ts': [{ path: '/abs/src/app.ts', specifiers: ['App'] }, ...] }</span></pre>
               </div>
             </div>
           </div>
@@ -2078,19 +2079,69 @@ console.<span class="fn">log</span>(affected);
             <div class="output-field">
               <div class="output-field-name">
                 <span class="field">graph</span>
-                <span class="type">: Record&lt;string, string[]&gt;</span>
+                <span class="type">: Record&lt;string, ImportEdge[]&gt;</span>
               </div>
-              <p>Forward adjacency list. Each file maps to its direct local imports.</p>
+              <p>Forward adjacency list. Each file maps to its direct local import edges.</p>
             </div>
             <div class="output-field">
               <div class="output-field-name">
                 <span class="field">reverseGraph</span>
-                <span class="type">: Record&lt;string, string[]&gt;</span>
+                <span class="type">: Record&lt;string, ImportEdge[]&gt;</span>
               </div>
               <p>
-                Reverse adjacency list. Each file maps to files that import it. Pre-computed for
-                fast cache invalidation.
+                Reverse adjacency list. Each file maps to import edges from files that import it.
+                Pre-computed for fast cache invalidation.
               </p>
+            </div>
+          </div>
+
+          <div class="output-fields reveal" style="transition-delay: 0.2s">
+            <h3
+              style="
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                letter-spacing: -0.01em;
+              "
+            >
+              <span class="type" style="color: var(--cyan)">ImportEdge</span>
+            </h3>
+            <div class="output-field">
+              <div class="output-field-name">
+                <span class="field">path</span> <span class="type">: string</span>
+              </div>
+              <p>Absolute path of the imported file.</p>
+            </div>
+            <div class="output-field">
+              <div class="output-field-name">
+                <span class="field">specifiers</span>
+                <span class="type">: string[] | undefined</span>
+              </div>
+              <p>
+                Specifiers imported (original names, not aliases). Contains
+                <code>"default"</code> for default imports.
+              </p>
+            </div>
+            <div class="output-field">
+              <div class="output-field-name">
+                <span class="field">isNamespace</span>
+                <span class="type">: boolean | undefined</span>
+              </div>
+              <p>True when the import is <code>import * as X</code> or <code>export *</code>.</p>
+            </div>
+            <div class="output-field">
+              <div class="output-field-name">
+                <span class="field">isDynamic</span> <span class="type">: boolean | undefined</span>
+              </div>
+              <p>True when the import is <code>import('...')</code>.</p>
+            </div>
+            <div class="output-field">
+              <div class="output-field-name">
+                <span class="field">isSideEffect</span>
+                <span class="type">: boolean | undefined</span>
+              </div>
+              <p>True when the import is <code>import '...'</code> (side-effect only).</p>
             </div>
           </div>
         </div>
