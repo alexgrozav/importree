@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ImportreeOptions, ImportTree } from "./types.js";
-import { walk } from "./walker.js";
+import type { ImportreeOptions, ImportTree, ImportEdge } from "./types.js";
+import { buildEdges, walk } from "./walker.js";
+import { scanImports } from "./scanner.js";
+import { createResolver } from "./resolver.js";
 
 export type { ImportreeOptions, ImportTree, ImportEdge } from "./types.js";
 
@@ -32,6 +35,32 @@ export async function importree(entry: string, options?: ImportreeOptions): Prom
  *
  * The changed file itself is NOT included in the result.
  */
+/**
+ * Parses a single file and returns its direct import edges without recursive traversal.
+ *
+ * @example
+ * ```ts
+ * const edges = parseImports('./src/components/Button.tsx', {
+ *   aliases: { '@': './src' },
+ * });
+ *
+ * for (const edge of edges) {
+ *   console.log(edge.path, edge.specifiers);
+ * }
+ * ```
+ */
+export function parseImports(filePath: string, options?: ImportreeOptions): ImportEdge[] {
+  const absolutePath = resolve(filePath);
+  const basedir = options?.rootDir ? resolve(options.rootDir) : process.cwd();
+  const resolveSpecifier = createResolver(basedir, options ?? {});
+
+  const content = readFileSync(absolutePath, "utf-8");
+  const rawImports = scanImports(content);
+  const { edges } = buildEdges(rawImports, resolveSpecifier, absolutePath);
+
+  return edges;
+}
+
 export function getAffectedFiles(tree: ImportTree, changedFile: string): string[] {
   const absolute = resolve(changedFile);
 

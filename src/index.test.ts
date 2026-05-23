@@ -1,9 +1,56 @@
 import { describe, it, expect } from "vitest";
-import { resolve, join } from "node:path";
-import { importree, getAffectedFiles } from "./index.js";
+import { resolve, join, isAbsolute } from "node:path";
+import { importree, getAffectedFiles, parseImports } from "./index.js";
 
 const fixturesDir = resolve(import.meta.dirname, "__tests__/fixtures");
 const f = (...parts: string[]): string => join(fixturesDir, ...parts);
+
+describe("parseImports", () => {
+  it("returns direct import edges for a single file", () => {
+    const edges = parseImports(f("basic", "entry.ts"));
+
+    expect(edges).toHaveLength(1);
+    expect(edges[0].path).toBe(f("basic", "dep.ts"));
+    expect(edges[0].specifiers).toEqual(["foo"]);
+  });
+
+  it("does not recurse into imported files", () => {
+    const edges = parseImports(f("chain", "a.ts"));
+
+    expect(edges).toHaveLength(1);
+    expect(edges[0].path).toBe(f("chain", "b.ts"));
+  });
+
+  it("excludes external imports", () => {
+    const edges = parseImports(f("externals", "entry.ts"));
+
+    expect(edges).toHaveLength(1);
+    expect(edges[0].path).toBe(f("externals", "local.ts"));
+  });
+
+  it("flags dynamic imports", () => {
+    const edges = parseImports(f("dynamic", "entry.ts"));
+
+    expect(edges).toHaveLength(1);
+    expect(edges[0].path).toBe(f("dynamic", "lazy.ts"));
+    expect(edges[0].isDynamic).toBe(true);
+  });
+
+  it("ignores imports inside comments", () => {
+    const edges = parseImports(f("comments", "entry.ts"));
+
+    expect(edges).toHaveLength(1);
+    expect(edges[0].path).toBe(f("comments", "real.ts"));
+  });
+
+  it("returns absolute paths", () => {
+    const edges = parseImports(f("basic", "entry.ts"));
+
+    for (const edge of edges) {
+      expect(isAbsolute(edge.path)).toBe(true);
+    }
+  });
+});
 
 describe("getAffectedFiles", () => {
   it("returns empty array for unknown file", async () => {
