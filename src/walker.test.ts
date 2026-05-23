@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { resolve, join } from "node:path";
+import { describe, it, expect, beforeAll } from "vitest";
+import { resolve, join, isAbsolute } from "node:path";
 import { importree } from "./index.js";
 import type { ImportTree, ImportEdge } from "./types.js";
 
@@ -314,7 +314,7 @@ describe("importree", () => {
 describe("graph format correctness", () => {
   function assertEdgeShape(edge: ImportEdge, label: string): void {
     expect(typeof edge.path, `${label}: path must be a string`).toBe("string");
-    expect(edge.path, `${label}: path must be absolute`).toMatch(/^\//);
+    expect(isAbsolute(edge.path), `${label}: path must be absolute`).toBe(true);
 
     if (edge.specifiers !== undefined) {
       expect(Array.isArray(edge.specifiers), `${label}: specifiers must be array`).toBe(true);
@@ -416,9 +416,8 @@ describe("graph format correctness", () => {
     describe(name, () => {
       let tree: ImportTree;
 
-      it("builds without error", async () => {
+      beforeAll(async () => {
         tree = await importree(entry, aliases ? { aliases } : undefined);
-        expect(tree).toBeDefined();
       });
 
       it("has valid edge shapes", () => {

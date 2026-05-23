@@ -1,7 +1,8 @@
 /**
  * Strips comments from source code while preserving string literals.
  *
- * Comments are replaced with spaces (preserving newlines). Strings and
+ * Line comments (`//`) are removed entirely. Block comments are replaced
+ * with a single space (newlines within them are preserved). Strings and
  * template literals are left intact so that import specifiers inside
  * `from 'specifier'` remain extractable. The function correctly handles
  * comment-like sequences inside strings (e.g., `'//'` won't start a comment).

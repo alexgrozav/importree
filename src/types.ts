@@ -32,7 +32,10 @@ export interface ImportEdge {
   /** Absolute path of the imported file. */
   path: string;
 
-  /** Named specifiers imported (original names, not aliases). */
+  /**
+   * Specifiers imported (original names, not aliases).
+   * Contains `"default"` for default imports (e.g., `import X from '...'`).
+   */
   specifiers?: string[];
 
   /** True when the import is `import * as X from '...'` or `export * from '...'`. */
