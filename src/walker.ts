@@ -34,16 +34,22 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
       } else if (resolved.type === "local" && resolved.absolutePath) {
         const existing = edges.find((e) => e.path === resolved.absolutePath);
         if (existing) {
-          if (raw.specifiers) {
+          if (raw.isNamespace) {
+            existing.isNamespace = true;
+            existing.specifiers = undefined;
+            existing.isSideEffect = undefined;
+          } else if (raw.specifiers && !existing.isNamespace) {
             if (existing.specifiers) {
               for (const s of raw.specifiers) existing.specifiers.push(s);
             } else {
               existing.specifiers = raw.specifiers;
             }
+            existing.isSideEffect = undefined;
           }
-          if (raw.isNamespace) existing.isNamespace = true;
+          if (raw.isSideEffect && !existing.specifiers && !existing.isNamespace) {
+            existing.isSideEffect = true;
+          }
           if (raw.isDynamic) existing.isDynamic = true;
-          if (raw.isSideEffect) existing.isSideEffect = true;
         } else {
           edges.push({
             path: resolved.absolutePath,

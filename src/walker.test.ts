@@ -269,6 +269,26 @@ describe("importree", () => {
     expect(tree.files).toContain(f("multiline", "reexport-multiline.ts"));
     expect(tree.files).toHaveLength(6);
   });
+
+  it("side-effect + named import merges to specifiers only", async () => {
+    const tree = await importree(f("merge-edge-types", "entry.ts"));
+    const edges = tree.graph[f("merge-edge-types", "entry.ts")];
+
+    const depEdge = edges.find((e) => e.path === f("merge-edge-types", "dep.ts"))!;
+    expect(depEdge).toBeDefined();
+    expect(depEdge.specifiers).toEqual(["bar"]);
+    expect(depEdge.isSideEffect).toBeUndefined();
+  });
+
+  it("namespace + named import merges to namespace only", async () => {
+    const tree = await importree(f("merge-edge-types", "entry.ts"));
+    const edges = tree.graph[f("merge-edge-types", "entry.ts")];
+
+    const nsEdge = edges.find((e) => e.path === f("merge-edge-types", "ns-dep.ts"))!;
+    expect(nsEdge).toBeDefined();
+    expect(nsEdge.isNamespace).toBe(true);
+    expect(nsEdge.specifiers).toBeUndefined();
+  });
 });
 
 describe("graph format correctness", () => {
@@ -367,6 +387,7 @@ describe("graph format correctness", () => {
     ["mixed", f("mixed", "entry.ts"), undefined],
     ["specifiers", f("specifiers", "entry.ts"), undefined],
     ["multiline", f("multiline", "entry.ts"), undefined],
+    ["merge-edge-types", f("merge-edge-types", "entry.ts"), undefined],
     ["index-resolution", f("index-resolution", "entry.ts"), undefined],
     ["aliases", f("aliases", "src", "entry.ts"), { "@": join(fixturesDir, "aliases", "src") }],
   ];
