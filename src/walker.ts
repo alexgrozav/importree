@@ -5,8 +5,8 @@ import { scanImports } from "./scanner.js";
 import { createResolver } from "./resolver.js";
 
 /**
- * Recursively walks imports starting from an entry file and builds
- * the full dependency tree.
+ * Walks imports starting from an entry file and builds the full dependency tree.
+ * Uses iterative DFS with an explicit stack to avoid call-stack limits on deep chains.
  */
 export async function walk(entryFile: string, options: ImportreeOptions): Promise<ImportTree> {
   const entrypoint = resolve(entryFile);
@@ -16,9 +16,11 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
   const graph: Record<string, ImportEdge[]> = {};
   const externals = new Set<string>();
   const visited = new Set<string>();
+  const stack = [entrypoint];
 
-  function visit(filePath: string): void {
-    if (visited.has(filePath)) return;
+  while (stack.length > 0) {
+    const filePath = stack.pop()!;
+    if (visited.has(filePath)) continue;
     visited.add(filePath);
 
     const content = readFileSync(filePath, "utf-8");
@@ -60,10 +62,8 @@ export async function walk(entryFile: string, options: ImportreeOptions): Promis
 
     graph[filePath] = edges;
 
-    for (const edge of edges) visit(edge.path);
+    for (const edge of edges) stack.push(edge.path);
   }
-
-  visit(entrypoint);
 
   // Build reverse graph
   const reverseGraph: Record<string, ImportEdge[]> = {};

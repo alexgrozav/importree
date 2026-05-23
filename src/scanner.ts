@@ -86,11 +86,11 @@ export interface RawImport {
 }
 
 // Static regex patterns — compiled once
-const nsImportRe = /\bimport\s+\*\s+as\s+\w+\s+from\s+['"]([^'"]+)['"]/g;
+const nsImportRe = /\bimport\s+\*\s+as\s+[$\w]+\s+from\s+['"]([^'"]+)['"]/g;
 const namedImportRe =
-  /\bimport\s+(?:type\s+)?(?:(\w+)\s*,\s*)?\{([^}]*)\}\s+from\s+['"]([^'"]+)['"]/g;
-const defaultImportRe = /\bimport\s+(?:type\s+)?(\w+)\s+from\s+['"]([^'"]+)['"]/g;
-const reexportStarRe = /\bexport\s+\*\s+(?:as\s+\w+\s+)?from\s+['"]([^'"]+)['"]/g;
+  /\bimport\s+(?:type\s+)?(?:([$\w]+)\s*,\s*)?\{([^}]*)\}\s+from\s+['"]([^'"]+)['"]/g;
+const defaultImportRe = /\bimport\s+(?:type\s+)?([$\w]+)\s+from\s+['"]([^'"]+)['"]/g;
+const reexportStarRe = /\bexport\s+\*\s+(?:as\s+[$\w]+\s+)?from\s+['"]([^'"]+)['"]/g;
 const reexportNamedRe = /\bexport\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['"]([^'"]+)['"]/g;
 const sideEffectRe = /\bimport\s+['"]([^'"]+)['"]/g;
 const dynamicRe = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
